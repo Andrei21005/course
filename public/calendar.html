@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Календарь привычек | Я молодец!</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/calendar.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+</head>
+<body>
+    <!-- Навигация -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <a href="/dashboard.html" class="logo">
+                    <i class="fas fa-fire"></i>
+                    <span>Я молодец!</span>
+                </a>
+            </div>
+            
+            <div class="nav-menu">
+                <a href="/dashboard.html" class="nav-link">
+                    <i class="fas fa-home"></i> Дашборд
+                </a>
+                <a href="/calendar.html" class="nav-link active">
+                    <i class="fas fa-calendar-alt"></i> Календарь
+                </a>
+                <a href="/stats.html" class="nav-link">
+                    <i class="fas fa-chart-bar"></i> Статистика
+                </a>
+                <a href="/habits.html" class="nav-link">
+                    <i class="fas fa-tasks"></i> Привычки
+                </a>
+                <a href="/goals.html" class="nav-link">
+                    <i class="fas fa-bullseye"></i> Цели
+                </a>
+                <a href="/reminders.html" class="nav-link">
+                    <i class="fas fa-bell"></i> Напоминания
+                </a>
+            </div>
+            
+            <div class="nav-user">
+                <div class="user-dropdown">
+                    <button class="user-btn">
+                        <img src="https://ui-avatars.com/api/?name=User&background=random" 
+                             alt="User" class="user-avatar">
+                        <span id="username">Пользователь</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="dropdown-menu">
+                        <a href="/profile.html" class="dropdown-item">
+                            <i class="fas fa-user"></i> Профиль
+                        </a>
+                        <a href="/settings.html" class="dropdown-item">
+                            <i class="fas fa-cog"></i> Настройки
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="#" class="dropdown-item" id="logout-btn">
+                            <i class="fas fa-sign-out-alt"></i> Выйти
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Основной контент -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Заголовок и управление -->
+            <div class="page-header">
+                <div class="header-left">
+                    <h1><i class="fas fa-calendar-alt"></i> Календарь привычек</h1>
+                    <p class="subtitle">Отслеживайте свой прогресс день за днем</p>
+                </div>
+                
+                <div class="header-right">
+                    <div class="btn-group">
+                        <button id="today-btn" class="btn btn-secondary">
+                            <i class="fas fa-calendar-day"></i> Сегодня
+                        </button>
+                        <button id="export-calendar-btn" class="btn btn-outline">
+                            <i class="fas fa-download"></i> Экспорт
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Уведомления -->
+            <div id="error-container" class="notification-container"></div>
+            <div id="success-container" class="notification-container"></div>
+
+            <!-- Основная сетка -->
+            <div class="calendar-grid-container">
+                <!-- Левая панель: календарь -->
+                <div class="calendar-left">
+                    <div class="calendar-controls">
+                        <div class="month-navigation">
+                            <button id="prev-month" class="btn btn-icon" title="Предыдущий месяц">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            
+                            <div class="month-display">
+                                <h2 id="month-year">Июль 2023</h2>
+                                <input type="date" id="date-picker" class="date-picker">
+                            </div>
+                            
+                            <button id="next-month" class="btn btn-icon" title="Следующий месяц">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="quick-stats" id="quick-stats">
+                            <!-- Динамически заполняется через JS -->
+                        </div>
+                    </div>
+
+                    <div class="calendar-wrapper">
+                        <div id="calendar" class="calendar">
+                            <!-- Календарь генерируется через JS -->
+                        </div>
+                        
+                        <div id="loading-indicator" class="loading-indicator" style="display: none;">
+                            <div class="spinner"></div>
+                            <span>Загрузка данных...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Правая панель: детали дня -->
+                <div class="calendar-right">
+                    <div class="day-details">
+                        <div class="details-header">
+                            <h3>Детали дня</h3>
+                            <div class="details-actions">
+                                <button class="btn btn-sm btn-primary" id="add-entry-btn">
+                                    <i class="fas fa-plus"></i> Новая запись
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div id="day-details" class="day-details-content">
+                            <div class="empty-state">
+                                <i class="fas fa-calendar-day"></i>
+                                <p>Выберите день в календаре для просмотра деталей</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="day-tips">
+                        <h4><i class="fas fa-lightbulb"></i> Советы на сегодня</h4>
+                        <ul id="daily-tips">
+                            <li>Начните с самой важной привычки</li>
+                            <li>Записывайте свой прогресс сразу</li>
+                            <li>Не пропускайте два дня подряд</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Графики и дополнительная статистика -->
+            <div class="charts-section">
+                <h3><i class="fas fa-chart-line"></i> Статистика за месяц</h3>
+                <div id="charts-container" class="charts-container">
+                    <!-- Графики генерируются через JS -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Модальное окно для добавления записи -->
+    <div id="entry-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Добавить запись</h3>
+                <button id="close-modal-btn" class="close-btn">&times;</button>
+            </div>
+            
+            <div class="modal-body">
+                <form id="entry-form">
+                    <div class="form-group">
+                        <label for="entry-date">Дата</label>
+                        <input type="date" id="entry-date" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="habit-selector">Привычка</label>
+                        <select id="habit-selector" class="form-control" required>
+                            <option value="">Выберите привычку...</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="status-selector">Статус</label>
+                        <select id="status-selector" class="form-control" required>
+                            <option value="completed">✅ Выполнено</option>
+                            <option value="partial">🟡 Частично</option>
+                            <option value="skipped">⏭️ Пропущено</option>
+                            <option value="not_done">❌ Не выполнено</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="entry-notes">Заметки (опционально)</label>
+                        <textarea id="entry-notes" class="form-control" rows="3" 
+                                  placeholder="Как прошел день? Какие были трудности?"></textarea>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" id="cancel-entry-btn">
+                            Отмена
+                        </button>
+                        <button type="button" class="btn btn-primary" id="save-entry-btn">
+                            Сохранить запись
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Подвал -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-left">
+                    <p>© 2023 Хэбит-трекер «Я молодец!». Курсовая работа.</p>
+                    <p class="footer-links">
+                        <a href="/privacy.html">Конфиденциальность</a> |
+                        <a href="/terms.html">Условия использования</a> |
+                        <a href="/help.html">Помощь</a>
+                    </p>
+                </div>
+                <div class="footer-right">
+                    <p>Версия 2.0.0</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Скрипты -->
+    <script src="/js/auth.js"></script>
+    <script src="/js/calendar.js"></script>
+    <script>
+        // Проверка авторизации
+        document.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = '/index.html';
+                return;
+            }
+            
+            // Загрузка имени пользователя
+            fetch('/api/auth/me', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        window.location.href = '/index.html';
+                    }
+                    throw new Error('Ошибка загрузки профиля');
+                }
+                return response.json();
+            })
+            .then(data => {
+                document.getElementById('username').textContent = 
+                    data.user?.displayName || 'Пользователь';
+            })
+            .catch(error => {
+                console.error('Ошибка:', error);
+            });
+            
+            // Выход из системы
+            document.getElementById('logout-btn').addEventListener('click', (e) => {
+                e.preventDefault();
+                localStorage.removeItem('token');
+                window.location.href = '/index.html';
+            });
+            
+            // Экспорт календаря
+            document.getElementById('export-calendar-btn').addEventListener('click', () => {
+                if (window.calendar) {
+                    const date = window.calendar.currentDate;
+                    const month = date.getMonth() + 1;
+                    const year = date.getFullYear();
+                    window.calendar.exportMonth(year, month);
+                }
+            });
+            
+            // Добавление записи
+            document.getElementById('add-entry-btn').addEventListener('click', () => {
+                if (window.calendar) {
+                    const today = new Date().toISOString().split('T')[0];
+                    window.calendar.openEntryModal(today);
+                }
+            });
+            
+            // Отмена добавления записи
+            document.getElementById('cancel-entry-btn').addEventListener('click', () => {
+                document.getElementById('entry-modal').style.display = 'none';
+            });
+            
+            // Горячие клавиши
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    document.getElementById('entry-modal').style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

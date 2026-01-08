@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Статистика | Я молодец!</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/stats.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+</head>
+<body>
+    <!-- Навигация -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <a href="/dashboard.html" class="logo">
+                    <i class="fas fa-fire"></i>
+                    <span>Я молодец!</span>
+                </a>
+            </div>
+            
+            <div class="nav-menu">
+                <a href="/dashboard.html" class="nav-link">
+                    <i class="fas fa-home"></i> Дашборд
+                </a>
+                <a href="/calendar.html" class="nav-link">
+                    <i class="fas fa-calendar-alt"></i> Календарь
+                </a>
+                <a href="/stats.html" class="nav-link active">
+                    <i class="fas fa-chart-bar"></i> Статистика
+                </a>
+                <a href="/habits.html" class="nav-link">
+                    <i class="fas fa-tasks"></i> Привычки
+                </a>
+                <a href="/goals.html" class="nav-link">
+                    <i class="fas fa-bullseye"></i> Цели
+                </a>
+                <a href="/reminders.html" class="nav-link">
+                    <i class="fas fa-bell"></i> Напоминания
+                </a>
+            </div>
+            
+            <div class="nav-user">
+                <div class="user-dropdown">
+                    <button class="user-btn">
+                        <img src="https://ui-avatars.com/api/?name=User&background=random" 
+                             alt="User" class="user-avatar">
+                        <span id="username">Пользователь</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="dropdown-menu">
+                        <a href="/profile.html" class="dropdown-item">
+                            <i class="fas fa-user"></i> Профиль
+                        </a>
+                        <a href="/settings.html" class="dropdown-item">
+                            <i class="fas fa-cog"></i> Настройки
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="#" class="dropdown-item" id="logout-btn">
+                            <i class="fas fa-sign-out-alt"></i> Выйти
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Основной контент -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Заголовок и управление -->
+            <div class="page-header">
+                <div class="header-left">
+                    <h1><i class="fas fa-chart-bar"></i> Статистика</h1>
+                    <p class="subtitle">Анализируйте свой прогресс и достигайте большего</p>
+                </div>
+                
+                <div class="header-right">
+                    <div class="btn-group">
+                        <button id="refresh-stats-btn" class="btn btn-secondary" title="Обновить">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                        <button id="export-stats-btn" class="btn btn-primary">
+                            <i class="fas fa-download"></i> Экспорт
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Уведомления -->
+            <div id="error-container" class="notification-container"></div>
+            <div id="success-container" class="notification-container"></div>
+
+            <!-- Фильтры и настройки -->
+            <div class="stats-controls">
+                <div class="control-group">
+                    <label for="time-range">Период:</label>
+                    <select id="time-range" class="form-control">
+                        <option value="week">Последняя неделя</option>
+                        <option value="month" selected>Последний месяц</option>
+                        <option value="year">Последний год</option>
+                        <option value="all">За все время</option>
+                        <option value="custom">Выбрать даты</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label for="chart-type">Тип графика:</label>
+                    <select id="chart-type" class="form-control">
+                        <option value="completion">Выполненность</option>
+                        <option value="streak">Стрики</option>
+                        <option value="habits">По привычкам</option>
+                        <option value="mood">Настроение</option>
+                    </select>
+                </div>
+                
+                <div id="custom-date-container" class="custom-date-range" style="display: none;">
+                    <div class="control-group">
+                        <label for="custom-date-start">С:</label>
+                        <input type="date" id="custom-date-start" class="form-control">
+                    </div>
+                    <div class="control-group">
+                        <label for="custom-date-end">По:</label>
+                        <input type="date" id="custom-date-end" class="form-control">
+                    </div>
+                    <button id="apply-custom-date" class="btn btn-primary">
+                        Применить
+                    </button>
+                </div>
+            </div>
+
+            <!-- Карточки с общей статистикой -->
+            <div class="overview-section">
+                <h3><i class="fas fa-tachometer-alt"></i> Обзор</h3>
+                <div id="overview-cards" class="overview-cards">
+                    <!-- Динамически заполняется через JS -->
+                </div>
+            </div>
+
+            <!-- Графики -->
+            <div class="charts-section">
+                <div class="section-header">
+                    <h3><i class="fas fa-chart-line"></i> Визуализация данных</h3>
+                    <div class="chart-actions">
+                        <button class="btn btn-sm btn-outline" id="toggle-charts-btn">
+                            <i class="fas fa-expand"></i> Развернуть
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="charts-container" class="charts-grid">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h4>Выполненность по дням</h4>
+                            <span class="chart-subtitle">Процент выполнения привычек</span>
+                        </div>
+                        <div class="chart-wrapper">
+                            <canvas id="completion-chart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h4>Распределение по привычкам</h4>
+                            <span class="chart-subtitle">Топ-10 самых активных привычек</span>
+                        </div>
+                        <div class="chart-wrapper">
+                            <canvas id="habits-chart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h4>Настроение</h4>
+                            <span class="chart-subtitle">Распределение по настроениям</span>
+                        </div>
+                        <div class="chart-wrapper">
+                            <canvas id="mood-chart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h4>История стриков</h4>
+                            <span class="chart-subtitle">Динамика последовательных дней</span>
+                        </div>
+                        <div class="chart-wrapper">
+                            <canvas id="streak-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Таблица привычек -->
+            <div class="habits-section">
+                <div class="section-header">
+                    <h3><i class="fas fa-list-ol"></i> Детальная статистика по привычкам</h3>
+                    <div class="table-actions">
+                        <button class="btn btn-sm btn-outline" id="sort-by-streak-btn">
+                            <i class="fas fa-sort-amount-down"></i> По стрику
+                        </button>
+                        <button class="btn btn-sm btn-outline" id="sort-by-success-btn">
+                            <i class="fas fa-percentage"></i> По успешности
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="habits-table-container" class="table-container">
+                    <!-- Таблица генерируется через JS -->
+                </div>
+            </div>
+
+            <!-- Insights и рекомендации -->
+            <div class="insights-section">
+                <h3><i class="fas fa-lightbulb"></i> Инсайты и рекомендации</h3>
+                <div id="insights-container" class="insights-grid">
+                    <div class="insight-card success">
+                        <div class="insight-icon">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <div class="insight-content">
+                            <h4>Ваш лучший день</h4>
+                            <p id="best-day">Понедельник</p>
+                            <small>Самый продуктивный день недели</small>
+                        </div>
+                    </div>
+                    
+                    <div class="insight-card warning">
+                        <div class="insight-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="insight-content">
+                            <h4>Слабые места</h4>
+                            <p id="weak-habits">Вечерние привычки</p>
+                            <small>Требуют больше внимания</small>
+                        </div>
+                    </div>
+                    
+                    <div class="insight-card info">
+                        <div class="insight-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="insight-content">
+                            <h4>Прогресс</h4>
+                            <p id="progress-rate">+15% за месяц</p>
+                            <small>Положительная динамика</small>
+                        </div>
+                    </div>
+                    
+                    <div class="insight-card primary">
+                        <div class="insight-icon">
+                            <i class="fas fa-bullseye"></i>
+                        </div>
+                        <div class="insight-content">
+                            <h4>Следующая цель</h4>
+                            <p id="next-goal">30 дней подряд</p>
+                            <small>Вы на правильном пути!</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Модальное окно экспорта -->
+    <div id="export-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Экспорт статистики</h3>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Выберите формат экспорта:</p>
+                <div class="export-options">
+                    <button class="btn btn-outline export-option" data-format="json">
+                        <i class="fas fa-file-code"></i> JSON
+                    </button>
+                    <button class="btn btn-outline export-option" data-format="csv">
+                        <i class="fas fa-file-csv"></i> CSV
+                    </button>
+                    <button class="btn btn-outline export-option" data-format="pdf">
+                        <i class="fas fa-file-pdf"></i> PDF
+                    </button>
+                    <button class="btn btn-outline export-option" data-format="excel">
+                        <i class="fas fa-file-excel"></i> Excel
+                    </button>
+                </div>
+                <div class="export-preview" id="export-preview">
+                    <!-- Превью данных -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Индикатор загрузки -->
+    <div id="loading-indicator" class="loading-overlay" style="display: none;">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <p>Загрузка статистики...</p>
+        </div>
+    </div>
+
+    <!-- Подвал -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-left">
+                    <p>© 2023 Хэбит-трекер «Я молодец!». Курсовая работа.</p>
+                    <p class="footer-links">
+                        <a href="/privacy.html">Конфиденциальность</a> |
+                        <a href="/terms.html">Условия использования</a> |
+                        <a href="/help.html">Помощь</a>
+                    </p>
+                </div>
+                <div class="footer-right">
+                    <p>Версия 2.0.0</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Скрипты -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/stats.js"></script>
+    <script>
+        // Проверка авторизации
+        document.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = '/index.html';
+                return;
+            }
+            
+            // Загрузка имени пользователя
+            fetch('/api/auth/me', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        window.location.href = '/index.html';
+                    }
+                    throw new Error('Ошибка загрузки профиля');
+                }
+                return response.json();
+            })
+            .then(data => {
+                document.getElementById('username').textContent = 
+                    data.user?.displayName || 'Пользователь';
+            })
+            .catch(error => {
+                console.error('Ошибка:', error);
+            });
+            
+            // Выход из системы
+            document.getElementById('logout-btn').addEventListener('click', (e) => {
+                e.preventDefault();
+                localStorage.removeItem('token');
+                window.location.href = '/index.html';
+            });
+            
+            // Инициализация flatpickr для выбора дат
+            if (typeof flatpickr !== 'undefined') {
+                flatpickr("#custom-date-start, #custom-date-end", {
+                    dateFormat: "Y-m-d",
+                    locale: "ru"
+                });
+            }
+            
+            // Обработка кнопок сортировки
+            document.getElementById('sort-by-streak-btn')?.addEventListener('click', () => {
+                if (window.statsManager) {
+                    window.statsManager.sortHabitsTable('streak');
+                }
+            });
+            
+            document.getElementById('sort-by-success-btn')?.addEventListener('click', () => {
+                if (window.statsManager) {
+                    window.statsManager.sortHabitsTable('success');
+                }
+            });
+            
+            // Переключение графиков
+            document.getElementById('toggle-charts-btn')?.addEventListener('click', function() {
+                const chartsContainer = document.getElementById('charts-container');
+                const icon = this.querySelector('i');
+                
+                if (chartsContainer.classList.contains('expanded')) {
+                    chartsContainer.classList.remove('expanded');
+                    icon.className = 'fas fa-expand';
+                    this.innerHTML = '<i class="fas fa-expand"></i> Развернуть';
+                } else {
+                    chartsContainer.classList.add('expanded');
+                    icon.className = 'fas fa-compress';
+                    this.innerHTML = '<i class="fas fa-compress"></i> Свернуть';
+                }
+            });
+            
+            // Горячие клавиши
+            document.addEventListener('keydown', (e) => {
+                if (e.ctrlKey && e.key === 'r') {
+                    e.preventDefault();
+                    document.getElementById('refresh-stats-btn')?.click();
+                }
+                if (e.key === 'Escape') {
+                    document.getElementById('export-modal').style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
